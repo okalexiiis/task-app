@@ -4,11 +4,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f0e8;
+  --background: #f9f6f1;
   --accent: #c0392b;
-  --primary: #1a1614;
+  --primary: #2d2926;
   --secondary: #9b8f82;
   --muted: #d4cdc2;
+  --success: #849483;
 
   --mono: "DM Mono", monospace;
   --serif: "Playfair Display", serif;
@@ -20,10 +21,16 @@
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
   --color-muted: var(--muted);
+  --color-success: var(--success);
 
   --font-mono: var(--mono);
   --font-serif: var(--serif);
 }
 
+@utility no-input-ring {
+  @apply focus:outline-none focus:ring-0;
+}
+
 body {
+  background: var(--background);
 }
