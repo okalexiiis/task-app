@@ -5,14 +5,14 @@ import { updateTask } from "@/services/tasks/update-task";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const userId = req.headers.get("x-user-id");
   if (!userId) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = await params;
   try {
     const task = await getTaskById(id);
     if (!task || task.userId !== userId) {
@@ -33,7 +33,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const userId = req.headers.get("x-user-id");
 
@@ -41,7 +41,7 @@ export async function DELETE(
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = await params;
 
   try {
     // 1. Verificar que la tarea existe y pertenece al usuario
