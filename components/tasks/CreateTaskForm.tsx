@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Priority, TaskStatus } from "@/entities/Task";
+import { priorityTranslations } from "@/utils/translations";
 
 const createTaskSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -12,7 +13,7 @@ const createTaskSchema = z.object({
   dueDate: z.string().optional().nullable(), // Acepta null
 });
 
-type CreateTaskData = z.infer<typeof createTaskSchema>;
+export type CreateTaskData = z.infer<typeof createTaskSchema>;
 
 interface CreateTaskFormProps {
   onSubmit: (data: CreateTaskData) => void;
@@ -87,7 +88,7 @@ export default function CreateTaskForm({
         >
           {Priority.map((p) => (
             <option key={p} value={p}>
-              {p}
+              {priorityTranslations[p]}
             </option>
           ))}
         </select>

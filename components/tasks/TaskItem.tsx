@@ -3,6 +3,10 @@ import { Trash } from "lucide-react";
 import { Task, TaskStatusEnum, PriorityEnum } from "@/entities/Task";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
+import {
+  priorityTranslations,
+  statusTranslations,
+} from "@/utils/translations";
 
 const PRIORITY_CLASSES: Record<PriorityEnum, string> = {
   MUST: "bg-accent border-accent",
@@ -11,25 +15,12 @@ const PRIORITY_CLASSES: Record<PriorityEnum, string> = {
   WONT: "bg-muted border-muted",
 };
 
+
 const PRIORITY_TEXT_CLASSES: Record<PriorityEnum, string> = {
   MUST: "text-accent border-accent",
   SHOULD: "text-primary border-primary",
   COULD: "text-secondary border-secondary",
   WONT: "text-muted border-muted",
-};
-
-const PRIORITY_LABEL: Record<PriorityEnum, string> = {
-  MUST: "must",
-  SHOULD: "should",
-  COULD: "could",
-  WONT: "won't",
-};
-
-const STATUS_LABEL: Record<TaskStatusEnum, string> = {
-  PENDING: "pendiente",
-  IN_PROGRESS: "en curso",
-  DONE: "listo",
-  CANCELED: "cancelado",
 };
 
 interface TaskItemProps {
@@ -95,7 +86,7 @@ export default function TaskItem({
               },
             )}
           >
-            {STATUS_LABEL[task.status]}
+            {statusTranslations[task.status]}
           </span>
 
           {/* Priority tag */}
@@ -106,7 +97,7 @@ export default function TaskItem({
                 PRIORITY_TEXT_CLASSES[task.priority],
               )}
             >
-              {PRIORITY_LABEL[task.priority]}
+              {priorityTranslations[task.priority]}
             </span>
           )}
 

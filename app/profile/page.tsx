@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
+import Toast from "@/components/Toast";
 import { useAuthStore } from "@/store/auth.store";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
+
+type ToastType = "success" | "error" | "warning";
 
 const profileSchema = z.object({
   username: z.string().min(1, "El nombre de usuario es obligatorio"),
@@ -27,12 +31,24 @@ export default function ProfilePage() {
     "https://i.pinimg.com/736x/a9/5e/7a/a95e7a415633a614613e757bac4246ed.jpg";
 
   const { user, logout, updateUser, deleteAccount } = useAuthStore();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: ToastType;
+  } | null>(null);
+
+  const showToast = (message: string, type: ToastType) => {
+    setToast(null);
+    setTimeout(() => setToast({ message, type }), 50);
+  };
+
+  const handleCloseToast = () => {
+    setToast(null);
+  };
 
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setError,
     formState: { errors, isDirty },
   } = useForm({
@@ -44,25 +60,30 @@ export default function ProfilePage() {
     },
   });
 
-  const pfpInputValue = watch("pfp");
-  const [pfpPreview, setPfpPreview] = useState(user?.pfp || default_pfp);
+  const pfpInputValue = useWatch({ control, name: "pfp" });
+  const [hasPfpLoadError, setHasPfpLoadError] = useState(false);
 
-  useEffect(() => {
+  const pfpUrl = useMemo(() => {
+    if (!pfpInputValue) return user?.pfp || default_pfp;
     try {
-      if (pfpInputValue) {
-        new URL(pfpInputValue);
-        setPfpPreview(pfpInputValue);
-      } else {
-        setPfpPreview(default_pfp);
-      }
-    } catch (error) {
-      // No actualiza si la URL no es válida
+      new URL(pfpInputValue);
+      return pfpInputValue;
+    } catch {
+      return default_pfp;
     }
-  }, [pfpInputValue, default_pfp]);
+  }, [pfpInputValue, user?.pfp, default_pfp]);
+
+  const prevPfpUrlRef = useRef(pfpUrl);
+  if (prevPfpUrlRef.current !== pfpUrl) {
+    prevPfpUrlRef.current = pfpUrl;
+    if (hasPfpLoadError) setHasPfpLoadError(false);
+  }
+
+  // Resetea el estado de error si la URL cambia
+  const imageSrc = hasPfpLoadError ? default_pfp : pfpUrl;
 
   const onSubmit = async (data: z.infer<typeof profileSchema>) => {
     if (!user) return;
-    setServerError(null);
 
     if (data.pfp) {
       const imageExists = await checkImageExists(data.pfp);
@@ -85,9 +106,10 @@ export default function ProfilePage() {
     if (res.ok) {
       const { user: updatedUserData } = await res.json();
       updateUser(updatedUserData);
+      showToast("¡Perfil actualizado con éxito!", "success");
     } else {
       const errorData = await res.json();
-      setServerError(errorData.message || "Error al actualizar el perfil");
+      showToast(errorData.message || "Error al actualizar el perfil", "error");
     }
   };
 
@@ -110,13 +132,13 @@ export default function ProfilePage() {
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center gap-4 mb-8">
           <Image
-            key={pfpPreview}
-            src={pfpPreview}
+            key={imageSrc}
+            src={imageSrc}
             alt="Foto de perfil"
             width={90}
             height={90}
             className="rounded-full object-cover"
-            onError={() => setPfpPreview(default_pfp)}
+            onError={() => setHasPfpLoadError(true)}
           />
           <h1 className="text-xl font-serif italic">{user.username}</h1>
         </div>
@@ -177,10 +199,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {serverError && (
-            <p className="text-accent text-sm text-center">{serverError}</p>
-          )}
-
           <button
             type="submit"
             disabled={!isDirty}
@@ -210,6 +228,13 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={handleCloseToast}
+        />
+      )}
     </div>
   );
 }
