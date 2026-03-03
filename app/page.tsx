@@ -91,7 +91,7 @@ export default function Home() {
     const originalTasks = [...currentTasks];
 
     setCurrentTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t))
+      prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t)),
     );
 
     try {
@@ -118,13 +118,13 @@ export default function Home() {
   const totalPages = Math.ceil(filteredTasks.length / PAGE_SIZE);
   const paginatedTasks = filteredTasks.slice(
     (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    currentPage * PAGE_SIZE,
   );
   const finishedCount = currentTasks.filter(
-    (t) => t.status === "DONE" || t.status === "CANCELED"
+    (t) => t.status === "DONE" || t.status === "CANCELED",
   ).length;
   const pct = Math.round(
-    (finishedCount / Math.max(currentTasks.length, 1)) * 100
+    (finishedCount / Math.max(currentTasks.length, 1)) * 100,
   );
 
   return (
@@ -149,7 +149,7 @@ export default function Home() {
                   {
                     "text-accent border-b-2 border-accent": activeTab === tab,
                     "text-secondary hover:text-primary": activeTab !== tab,
-                  }
+                  },
                 )}
               >
                 {tab.replace("_", " ")}
@@ -158,12 +158,12 @@ export default function Home() {
           </div>
           <TaskList
             tasks={paginatedTasks}
-            label={`${activeTab.replace("_", " ")} (${
-              filteredTasks.length
-            })`}
+            label={`${activeTab.replace("_", " ")} (${filteredTasks.length})`}
             finished={activeTab === "DONE" || activeTab === "CANCELED"}
             onToggle={toggle}
-            onDelete={(id) => setTaskToDelete(currentTasks.find(t => t.id === id) || null)}
+            onDelete={(id) =>
+              setTaskToDelete(currentTasks.find((t) => t.id === id) || null)
+            }
           />
           <PaginationControls
             currentPage={currentPage}

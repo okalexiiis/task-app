@@ -9,7 +9,7 @@ const createTaskSchema = z.object({
   description: z.string().optional(),
   priority: z.enum(Priority),
   status: z.enum(TaskStatus).default("PENDING"),
-  dueDate: z.string().optional(),
+  dueDate: z.string().optional().nullable(), // Acepta null
 });
 
 type CreateTaskData = z.infer<typeof createTaskSchema>;
@@ -35,9 +35,18 @@ export default function CreateTaskForm({
     },
   });
 
+  // Wrapper para transformar los datos antes de enviar
+  const handleFormSubmit = (data: CreateTaskData) => {
+    // Si la fecha está vacía, conviértela a null
+    if (data.dueDate === "") {
+      data.dueDate = null;
+    }
+    onSubmit(data);
+  };
+
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit)}
       className="flex flex-col gap-5 w-full"
     >
       {/* Campo Nombre */}
