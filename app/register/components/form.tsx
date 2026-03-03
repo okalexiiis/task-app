@@ -3,26 +3,41 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export const registerSchema = z.object({
   username: z.string().min(1, "El nombre de usuario es obligatorio"),
-  email: z.email().min(1, "El email es obligatorio"),
+  email: z.string().email("Debe ser un correo válido"),
   password: z.string().min(6, "Mínimo 6 caracteres"),
 });
 
 export function RegisterForm() {
+  const router = useRouter();
+  const [registerError, setRegisterError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: zodResolver(registerSchema) });
 
-  const onSubmit = (data: {
-    username: string;
-    email: string;
-    password: string;
-  }) => {
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
+    setRegisterError(null);
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (res.ok) {
+      router.push("/login");
+    } else {
+      const errorData = await res.json();
+      setRegisterError(errorData.message || "Ocurrió un error");
+    }
   };
 
   return (
@@ -88,6 +103,10 @@ export function RegisterForm() {
         Crear mi espacio personal
       </button>
 
+      {registerError && (
+        <p className="text-accent text-sm text-center mt-2">{registerError}</p>
+      )}
+
       {/* Footer de navegación */}
       <footer className="text-center mt-2">
         <p className="font-mono text-xs text-secondary">
@@ -103,3 +122,4 @@ export function RegisterForm() {
     </form>
   );
 }
+

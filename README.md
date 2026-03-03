@@ -1,4 +1,5 @@
-TODO:
-
-- Tailwind no jala clases dinamicas, checa eso porfa
-# task-app
+- Actualizacion de status no funciona
+- Eliminacion de task no funciona
+- Crear una task sin fecha limite no funciona
+- Ordenar task por prioridad y fecha de creacion
+- Mouse Pointer en el boton de crear

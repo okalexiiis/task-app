@@ -1,5 +1,7 @@
+import Header from "@/components/layout/Header";
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/components/layout/AuthProvider";
 
 export const metadata: Metadata = {
   title: "TodoIst",
@@ -13,7 +15,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>{children}</body>
+      <body className={`antialiased`}>
+        <AuthProvider>
+          <Header />
+          {children}
+        </AuthProvider>
+        <div id="modal-root" />
+      </body>
     </html>
   );
 }

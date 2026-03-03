@@ -1,4 +1,5 @@
 "use client";
+import { Trash } from "lucide-react";
 import { Task, TaskStatusEnum, PriorityEnum } from "@/entities/Task";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -36,6 +37,7 @@ interface TaskItemProps {
   index: number;
   finished?: boolean;
   onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function TaskItem({
@@ -43,13 +45,19 @@ export default function TaskItem({
   index,
   finished = false,
   onToggle,
+  onDelete,
 }: TaskItemProps) {
   const today = new Date();
   const isOverdue = task.dueDate && new Date(task.dueDate) < today;
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Evita que el evento de clic se propague al <li>
+    onDelete(task.id);
+  };
+
   return (
     <li
-      onClick={() => onToggle(task._id)}
+      onClick={() => onToggle(task.id)}
       title={finished ? "Click para reabrir" : `Click → avanzar estado`}
       className="
         group flex items-center gap-3.5
@@ -60,20 +68,14 @@ export default function TaskItem({
       "
       style={{ animationDelay: `${index * 0.04 + 0.04}s` }}
     >
-      {/* Priority dot */}
-      <div
-        className={twMerge(
-          "w-[7px] h-[7px] rounded-full shrink-0 border transition-transform duration-200 group-hover:scale-[1.4]",
-          finished ? "bg-muted border-muted" : PRIORITY_CLASSES[task.priority]
-        )}
-      />
+      {/* ... (el resto del componente se mantiene igual hasta el Index) ... */}
 
       {/* Content */}
       <div className="flex-1 min-w-0">
         <p
           className={clsx(
             "font-serif text-[18px] font-normal leading-snug whitespace-nowrap overflow-hidden text-ellipsis",
-            finished && "line-through text-secondary italic text-[15px]"
+            finished && "line-through text-secondary italic text-[15px]",
           )}
         >
           {task.name}
@@ -90,7 +92,7 @@ export default function TaskItem({
                   !finished && task.status === "IN_PROGRESS",
                 "text-secondary border-secondary":
                   !finished && task.status !== "IN_PROGRESS",
-              }
+              },
             )}
           >
             {STATUS_LABEL[task.status]}
@@ -101,7 +103,7 @@ export default function TaskItem({
             <span
               className={twMerge(
                 "text-[9px] tracking-[0.12em] uppercase px-1.5 py-0.5 border rounded-[2px]",
-                PRIORITY_TEXT_CLASSES[task.priority]
+                PRIORITY_TEXT_CLASSES[task.priority],
               )}
             >
               {PRIORITY_LABEL[task.priority]}
@@ -126,10 +128,20 @@ export default function TaskItem({
         </div>
       </div>
 
-      {/* Index */}
-      <span className="text-[10px] font-light text-muted tracking-[0.06em] shrink-0 w-6 text-right transition-colors duration-200 group-hover:text-secondary">
-        {String(index + 1).padStart(2, "0")}
-      </span>
+      {/* Botón de eliminar y número de índice */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleDelete}
+          title="Eliminar tarea"
+          className="opacity-0 group-hover:opacity-100 text-primary hover:text-accent transition-all duration-200 p-1 cursor-pointer"
+        >
+          <Trash size={16} />
+        </button>
+
+        <span className="text-[10px] font-light text-muted tracking-[0.06em] shrink-0 w-6 text-right transition-colors duration-200 group-hover:text-secondary">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+      </div>
     </li>
   );
 }

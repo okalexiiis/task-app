@@ -12,13 +12,13 @@ export const TaskStatus = [
 export type TaskStatusEnum = (typeof TaskStatus)[number];
 
 export type Task = {
-  _id: string;
+  id: string;
   userId: string;
   name: string;
   priority: PriorityEnum;
   status: TaskStatusEnum;
-  description?: string;
-  dueDate?: string;
+  description: string | null;
+  dueDate: string | null;
   createdAt: string;
   updatedAt: string;
 };

@@ -7,6 +7,7 @@ interface TaskListProps {
   label: string;
   finished?: boolean;
   onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function TaskList({
@@ -14,13 +15,12 @@ export default function TaskList({
   label,
   finished = false,
   onToggle,
+  onDelete,
 }: TaskListProps) {
   if (tasks.length === 0) return null;
 
   return (
-    <div
-      className="relative before:content-[''] before:absolute before:-left-9 before:top-0 before:bottom-0 before:w-px before:opacity-35"
-    >
+    <div className="relative before:content-[''] before:absolute before:-left-9 before:top-0 before:bottom-0 before:w-px before:opacity-35">
       <div
         className="absolute -left-9 top-0 bottom-0 w-px opacity-35"
         style={{
@@ -34,11 +34,12 @@ export default function TaskList({
       <ul className="list-none">
         {tasks.map((task, i) => (
           <TaskItem
-            key={task._id}
+            key={task.id}
             task={task}
             index={i}
             finished={finished}
             onToggle={onToggle}
+            onDelete={onDelete}
           />
         ))}
       </ul>
