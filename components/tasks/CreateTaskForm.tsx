@@ -8,7 +8,7 @@ const createTaskSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
   description: z.string().optional(),
   priority: z.enum(Priority),
-  status: z.enum(TaskStatus).default("PENDING"),
+  status: z.enum(TaskStatus),
   dueDate: z.string().optional().nullable(), // Acepta null
 });
 
