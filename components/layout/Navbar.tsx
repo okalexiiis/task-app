@@ -15,12 +15,12 @@ export default function NavBar({ user, children }: NavBarProps) {
   });
 
   return (
-    <nav className="flex items-center justify-between pt-11 px-10 pb-6">
+    <nav className="flex flex-col sm:flex-row items-center justify-between pt-11 px-4 sm:px-10 pb-6 gap-4">
       <div className="flex flex-col gap-1">
         <span className="font-serif italic text-[13px] text-secondary tracking-[0.04em]">
           {dayName}
         </span>
-        <h1 className="font-serif text-[34px] font-bold leading-none tracking-[-0.025em]">
+        <h1 className="text-2xl sm:text-[34px] font-bold leading-none tracking-[-0.025em]">
           Hola,{" "}
           <span className="text-accent">{user?.username || "SIN USUARIO"}</span>
         </h1>

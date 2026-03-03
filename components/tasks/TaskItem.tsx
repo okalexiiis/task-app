@@ -1,20 +1,9 @@
 "use client";
 import { Trash } from "lucide-react";
-import { Task, TaskStatusEnum, PriorityEnum } from "@/entities/Task";
+import { Task, PriorityEnum } from "@/entities/Task";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
-import {
-  priorityTranslations,
-  statusTranslations,
-} from "@/utils/translations";
-
-const PRIORITY_CLASSES: Record<PriorityEnum, string> = {
-  MUST: "bg-accent border-accent",
-  SHOULD: "bg-primary border-primary",
-  COULD: "bg-secondary border-secondary",
-  WONT: "bg-muted border-muted",
-};
-
+import { priorityTranslations, statusTranslations } from "@/utils/translations";
 
 const PRIORITY_TEXT_CLASSES: Record<PriorityEnum, string> = {
   MUST: "text-accent border-accent",

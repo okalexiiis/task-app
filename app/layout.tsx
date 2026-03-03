@@ -4,8 +4,9 @@ import "./globals.css";
 import { AuthProvider } from "@/components/layout/AuthProvider";
 
 export const metadata: Metadata = {
-  title: "TodoIst",
-  description: "aplicacion de tareas",
+  title: "nidito",
+  description:
+    "aplicacion de tareas hecha por alexiiis para mi mujer, pa que se ponga las pilas asi no mas quedo pariente",
 };
 
 export default function RootLayout({

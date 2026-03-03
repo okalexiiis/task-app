@@ -63,3 +63,13 @@ body {
     }
   }
 }
+
+::-moz-selection {
+  color: var(--primary);
+  background: var(--secondary);
+}
+
+::selection {
+  color: var(--primary);
+  background: var(--secondary);
+}

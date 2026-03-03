@@ -92,7 +92,7 @@ export default function Home() {
   return (
     <>
       <div className="bg-background min-h-screen text-primary font-dmono">
-        <div className="max-w-[760px] mx-auto px-9">
+        <div className="max-w-[760px] mx-auto px-4 md:px-9">
           <NavBar user={user}>
             <button
               onClick={() => setCreateModalOpen(true)}
