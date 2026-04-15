@@ -153,17 +153,37 @@ export function useGroup(groupId: string | null) {
 
   const toggleGroupTaskStatus = useCallback(
     async (taskId: string) => {
+      console.log("toggleGroupTaskStatus called:", taskId, "role:", userRole);
       if (!user) throw new Error("User not authenticated");
       const task = groupTasks.find((t) => t.id === taskId);
-      if (!task) return;
+      if (!task) {
+        console.log("Task not found in groupTasks");
+        return;
+      }
 
-      const nextStatus: Record<TaskStatusEnum, TaskStatusEnum> = {
-        PENDING: "IN_PROGRESS",
-        IN_PROGRESS: "DONE",
-        DONE: "CANCELED",
-        CANCELED: "PENDING",
-      };
-      const newStatus = nextStatus[task.status];
+      let newStatus: TaskStatusEnum | undefined;
+
+      if (task.status === "DONE") {
+        if (userRole === "MEMBER" && task.groupId) {
+          console.log("Blocked: MEMBER cannot toggle from DONE");
+          return;
+        }
+        if (task.groupId) {
+          newStatus = "CANCELED";
+        }
+      } else {
+        const nextStatus: Record<"PENDING" | "IN_PROGRESS" | "CANCELED", "IN_PROGRESS" | "DONE" | "PENDING"> = {
+          PENDING: "IN_PROGRESS",
+          IN_PROGRESS: "DONE",
+          CANCELED: "PENDING",
+        };
+        newStatus = nextStatus[task.status as "PENDING" | "IN_PROGRESS" | "CANCELED"];
+      }
+
+      if (!newStatus) {
+        console.log("No newStatus for:", task.status);
+        return;
+      }
 
       const originalTasks = [...groupTasks];
       setGroupTasks((prev) =>
@@ -171,7 +191,7 @@ export function useGroup(groupId: string | null) {
       );
 
       try {
-        const response = await fetch(`/api/tasks/${taskId}`, {
+        const res = await fetch(`/api/tasks/${taskId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -179,14 +199,17 @@ export function useGroup(groupId: string | null) {
           },
           body: JSON.stringify({ status: newStatus }),
         });
-        if (!response.ok) {
+        if (!res.ok) {
+          const data = await res.json();
+          console.error("Error:", data.message);
           setGroupTasks(originalTasks);
         }
-      } catch {
+      } catch (e) {
+        console.error("Error:", e);
         setGroupTasks(originalTasks);
       }
     },
-    [user, groupTasks],
+    [user, groupTasks, userRole],
   );
 
   const deleteGroupTask = useCallback(
