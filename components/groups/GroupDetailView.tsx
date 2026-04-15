@@ -49,6 +49,7 @@ export default function GroupDetailView({
     groupTasks,
     toggleGroupTaskStatus,
     deleteGroupTask,
+    fetchMembers,
   } = useGroup(groupId);
   const { renameGroup, deleteGroup } = useGroups();
 
@@ -88,7 +89,10 @@ export default function GroupDetailView({
       isOpen: true,
       title: "Eliminar Miembro",
       message: "¿Estás seguro de eliminar este miembro del grupo?",
-      onConfirm: () => removeMember(memberId),
+      onConfirm: async () => {
+        await removeMember(memberId);
+        fetchMembers();
+      },
     });
   };
 
@@ -103,7 +107,10 @@ export default function GroupDetailView({
       isOpen: true,
       title: "Cambiar Rol",
       message: `¿Estás seguro de cambiar el rol a ${newRole}?`,
-      onConfirm: () => updateMemberRole(memberId, newRole as GroupRoleEnum),
+      onConfirm: async () => {
+        await updateMemberRole(memberId, newRole as GroupRoleEnum);
+        fetchMembers();
+      },
     });
   };
 
@@ -272,6 +279,7 @@ export default function GroupDetailView({
         isOpen={isAddMemberModalOpen}
         onClose={() => setIsAddMemberModalOpen(false)}
         groupId={groupId}
+        onSuccess={fetchMembers}
       />
       <ConfirmModal
         isOpen={confirmModal.isOpen}

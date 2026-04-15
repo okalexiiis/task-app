@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 
 type UserGroup = {
   group: typeof GroupSchema.$inferSelect;
+  role: string;
 };
 
 export async function getGroupsByUser(
@@ -13,7 +14,10 @@ export async function getGroupsByUser(
 ): Promise<Result<UserGroup[]>> {
   try {
     const rows = await db
-      .select({ group: GroupSchema })
+      .select({
+        group: GroupSchema,
+        role: GroupMemberSchema.role,
+      })
       .from(GroupMemberSchema)
       .innerJoin(GroupSchema, eq(GroupMemberSchema.group_id, GroupSchema.id))
       .where(eq(GroupMemberSchema.member_id, userId));

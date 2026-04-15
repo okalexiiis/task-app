@@ -1,4 +1,4 @@
-export type StatusCode = 200 | 400 | 401 | 403 | 404 | 500;
+export type StatusCode = 200 | 400 | 401 | 403 | 404 | 409 | 500;
 
 export type AppError = {
   message: string;

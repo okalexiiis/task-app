@@ -27,8 +27,10 @@ export default function Home() {
         <NavBar user={user}>
           <button
             onClick={actions.primaryAction}
-            className="bg-accent px-4 py-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={state.currentView === "GROUP_DETAIL" && !state.canCreateGroupTask}
+            className="bg-accent text-background px-4 py-2 rounded-full hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            disabled={
+              state.currentView === "GROUP_DETAIL" && !state.canCreateGroupTask
+            }
           >
             {state.currentView === "GROUPS_LIST"
               ? "+ Nuevo Grupo"
@@ -37,7 +39,7 @@ export default function Home() {
 
           <button
             onClick={actions.toggleView}
-            className="border border-accent px-4 py-2 rounded-full"
+            className="border border-accent px-4 py-2 rounded-full hover:bg-accent/10 transition-colors cursor-pointer"
           >
             {state.isGroupsView ? "Ver mis Tareas" : "Ver Grupos"}
           </button>
@@ -91,7 +93,9 @@ export default function Home() {
         isOpen={state.isCreateModalOpen}
         onClose={() => actions.setCreateModalOpen(false)}
         onSubmit={actions.handleCreateTask}
-        groupId={state.currentView === "GROUP_DETAIL" ? state.activeGroupId : null}
+        groupId={
+          state.currentView === "GROUP_DETAIL" ? state.activeGroupId : null
+        }
       />
       <DeleteConfirmationModal
         task={state.taskToDelete}

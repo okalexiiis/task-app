@@ -60,6 +60,9 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const groups = groupsResult.data.map((row) => row.group);
+  const groups = groupsResult.data.map((row) => ({
+    ...row.group,
+    userRole: row.role,
+  }));
   return NextResponse.json(groups, { status: 200 });
 }

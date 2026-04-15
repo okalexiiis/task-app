@@ -24,7 +24,11 @@ export async function newMember(
     if (!saved) return fail(500, { message: "Miembro no guardado" });
 
     return ok(saved);
-  } catch {
+  } catch (error) {
+    const err = error as Error & { code?: string };
+    if (err.code === "23505" || err.message?.includes("duplicate")) {
+      return fail(409, { message: "El usuario ya existe en el grupo" });
+    }
     return fail(500, { message: "Error al guardar el miembro" });
   }
 }

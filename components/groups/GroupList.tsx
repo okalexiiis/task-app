@@ -1,10 +1,14 @@
 import { Group } from "@/entities/Group";
 
+interface GroupWithRole extends Group {
+  userRole?: string;
+}
+
 export default function GroupsList({
   groups,
   onSelectGroup,
 }: {
-  groups: Group[];
+  groups: GroupWithRole[];
   onSelectGroup: (id: string) => void;
 }) {
   return (
@@ -25,7 +29,7 @@ export default function GroupsList({
         >
           <span className="font-bold">{g.groupName}</span>
           <span className="text-[10px] bg-muted px-2 py-1 rounded uppercase">
-            Owner
+            {g.userRole || "Owner"}
           </span>
         </div>
       ))}
