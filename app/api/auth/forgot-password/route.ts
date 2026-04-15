@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   const resetToken = await setResetToken(email);
 
-  await sendPasswordResetEmail(email, result.data.username, resetToken);
+  await sendPasswordResetEmail(email, result.data.username, resetToken, result.data.pfp);
 
   return NextResponse.json(
     { message: "Si el correo existe, recibirás un enlace para restablecer tu contraseña" },

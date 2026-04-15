@@ -11,21 +11,32 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
 
 interface PasswordResetEmailProps {
   username?: string;
   resetToken: string;
   baseUrl?: string;
+  pfp?: string;
 }
 
 const defaultPfp =
   "https://i.pinimg.com/736x/a9/5e/7a/a95e7a415633a614613e757bac4246ed.jpg";
 
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return "http://localhost:3000";
+};
+
 export const PasswordResetEmail = ({
   username = "Usuario",
   resetToken,
-  baseUrl = "http://localhost:3000",
+  baseUrl = getBaseUrl(),
+  pfp = defaultPfp,
 }: PasswordResetEmailProps) => {
   const previewText = "Restablece tu contraseña";
 
@@ -61,7 +72,7 @@ export const PasswordResetEmail = ({
           }}
         >
           <Img
-            src={defaultPfp}
+            src={pfp}
             width="64"
             height="64"
             alt="Logo"
