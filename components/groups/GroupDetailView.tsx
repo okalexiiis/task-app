@@ -6,6 +6,7 @@ import { useGroup } from "@/hooks/useGroup";
 import { useGroups } from "@/hooks/useGroups";
 import GroupOptionsDropdown from "./GroupOptionsDropdown";
 import AddMemberModal from "./AddMemberModal";
+import RenameGroupModal from "./RenameGroupModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import Toast from "@/components/Toast";
 import TaskTabs from "@/components/tasks/TaskTabs";
@@ -25,11 +26,15 @@ export default function GroupDetailView({
   const [activeTab, setActiveTab] = useState<TaskStatusEnum>("PENDING");
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
     message: string;
-    onConfirm: () => void;
+    showInput?: boolean;
+    inputPlaceholder?: string;
+    inputDefault?: string;
+    onConfirm: (inputValue?: string) => void;
   }>({
     isOpen: false,
     title: "",
@@ -50,6 +55,7 @@ export default function GroupDetailView({
     toggleGroupTaskStatus,
     deleteGroupTask,
     fetchMembers,
+    fetchGroup,
   } = useGroup(groupId);
   const { renameGroup, deleteGroup } = useGroups();
 
@@ -64,10 +70,15 @@ export default function GroupDetailView({
   );
 
   const handleRename = () => {
-    const newName = prompt("Nuevo nombre:", group?.groupName);
-    if (newName && groupId) {
-      renameGroup(groupId, newName);
-    }
+    if (!group) return;
+    setIsRenameModalOpen(true);
+  };
+
+  const handleRenameConfirm = async (newName: string) => {
+    if (!groupId || !newName.trim()) return;
+    await renameGroup(groupId, newName.trim());
+    await fetchGroup();
+    setIsRenameModalOpen(false);
   };
 
   const handleDelete = () => {
@@ -76,7 +87,12 @@ export default function GroupDetailView({
       title: "Eliminar Grupo",
       message:
         "¿Estás seguro de eliminar el grupo? Esta acción no se puede deshacer.",
-      onConfirm: () => groupId && deleteGroup(groupId),
+      onConfirm: async () => {
+        if (groupId) {
+          await deleteGroup(groupId);
+          window.location.href = "/";
+        }
+      },
     });
   };
 
@@ -284,9 +300,15 @@ export default function GroupDetailView({
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
-        onConfirm={confirmModal.onConfirm}
+        onConfirm={() => confirmModal.onConfirm()}
         title={confirmModal.title}
         message={confirmModal.message}
+      />
+      <RenameGroupModal
+        isOpen={isRenameModalOpen}
+        onClose={() => setIsRenameModalOpen(false)}
+        onRename={handleRenameConfirm}
+        currentName={group?.groupName || ""}
       />
       {toast && (
         <Toast

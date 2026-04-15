@@ -37,12 +37,12 @@ export default function GroupOptionsDropdown({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="btn btn-sm btn-ghost"
+        className="text-secondary hover:text-accent transition-colors cursor-pointer text-xl font-bold px-2"
       >
         ⋯
       </button>
       {isOpen && (
-        <ul className="absolute right-0 top-full mt-1 bg-base-100 rounded-box z-50 w-52 p-2 shadow-lg border border-muted">
+        <ul className="absolute right-0 top-full mt-1 bg-background rounded-lg z-50 w-40 p-2 shadow-lg border border-muted">
           {GroupPermissions.canRenameGroup(role) && (
             <li>
               <button
@@ -50,6 +50,7 @@ export default function GroupOptionsDropdown({
                   setIsOpen(false);
                   onRename();
                 }}
+                className="w-full text-left p-2 text-sm hover:bg-muted/20 rounded cursor-pointer"
               >
                 Renombrar
               </button>
@@ -62,6 +63,7 @@ export default function GroupOptionsDropdown({
                   setIsOpen(false);
                   onDelete();
                 }}
+                className="w-full text-left p-2 text-sm text-accent hover:bg-accent/10 rounded cursor-pointer"
               >
                 Eliminar
               </button>
@@ -73,6 +75,7 @@ export default function GroupOptionsDropdown({
                 setIsOpen(false);
                 onLeave();
               }}
+              className="w-full text-left p-2 text-sm hover:bg-muted/20 rounded cursor-pointer"
             >
               Salir
             </button>

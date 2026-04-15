@@ -60,7 +60,7 @@ export function useGroups() {
           setGroups(originalGroups);
           throw new Error(updatedGroup.message || "Error renaming group");
         }
-        return updatedGroup;
+        return { ...updatedGroup, groupName };
       } catch (error) {
         setGroups(originalGroups);
         throw error;
