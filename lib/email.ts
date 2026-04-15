@@ -4,7 +4,7 @@ import { PasswordResetEmail } from "@/emails/PasswordReset";
 import { TaskNotificationEmail } from "@/emails/TaskNotification";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = process.env.EMAIL_FROM!;
+const FROM_EMAIL = process.env.EMAIL_FROM || "onboarding@resend.dev";
 
 const emailRateLimit = new Map<string, { count: number; timestamp: number }>();
 const RATE_LIMIT_MAX = 10;
@@ -77,6 +77,7 @@ export async function sendTaskNotification(
   oldStatus: string,
   newStatus: string,
   groupName?: string,
+  changerUsername?: string, // 👈 quien hizo el cambio
 ) {
   const sanitizedEmail = sanitizeEmail(recipientEmail);
   const sanitizedUsername = sanitizeUsername(recipientUsername);
@@ -101,6 +102,7 @@ export async function sendTaskNotification(
       oldStatus,
       newStatus,
       groupName: sanitizedGroupName,
+      changerUsername, // 👈 pasar al template
     }),
   );
 

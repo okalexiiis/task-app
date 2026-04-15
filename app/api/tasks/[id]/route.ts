@@ -89,7 +89,9 @@ export async function PUT(
     console.log("Updated task:", updatedTask);
 
     if (status && status !== oldStatus) {
-      notifyTaskStatusChange(id, oldStatus, status).catch(console.error);
+      notifyTaskStatusChange(id, oldStatus, status, userId).catch(
+        console.error,
+      );
     }
 
     return NextResponse.json(updatedTask);

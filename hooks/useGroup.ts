@@ -172,12 +172,16 @@ export function useGroup(groupId: string | null) {
           newStatus = "CANCELED";
         }
       } else {
-        const nextStatus: Record<"PENDING" | "IN_PROGRESS" | "CANCELED", "IN_PROGRESS" | "DONE" | "PENDING"> = {
+        const nextStatus: Record<
+          "PENDING" | "IN_PROGRESS" | "CANCELED",
+          "IN_PROGRESS" | "DONE" | "PENDING"
+        > = {
           PENDING: "IN_PROGRESS",
           IN_PROGRESS: "DONE",
           CANCELED: "PENDING",
         };
-        newStatus = nextStatus[task.status as "PENDING" | "IN_PROGRESS" | "CANCELED"];
+        newStatus =
+          nextStatus[task.status as "PENDING" | "IN_PROGRESS" | "CANCELED"];
       }
 
       if (!newStatus) {

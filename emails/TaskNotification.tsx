@@ -1,6 +1,5 @@
 import {
   Body,
-  Button,
   Container,
   Font,
   Head,
@@ -8,13 +7,12 @@ import {
   Html,
   Img,
   Preview,
-  Section,
   Text,
 } from "@react-email/components";
 import * as React from "react";
 
 interface TaskNotificationEmailProps {
-  assigneeUsername: string;
+  changerUsername: string; // 👈 renombrado
   taskName: string;
   oldStatus: string;
   newStatus: string;
@@ -25,14 +23,13 @@ const defaultPfp =
   "https://i.pinimg.com/736x/a9/5e/7a/a95e7a415633a614613e757bac4246ed.jpg";
 
 const statusLabels: Record<string, string> = {
-  DONE: "Completada",
-  CANCELED: "Cancelada",
+  DONE: "Completado",
+  CANCELED: "Cancelado",
 };
 
 export const TaskNotificationEmail = ({
-  assigneeUsername = "Usuario",
+  changerUsername = "Usuario", // 👈 renombrado
   taskName = "Tarea",
-  oldStatus = "PENDING",
   newStatus = "DONE",
   groupName,
 }: TaskNotificationEmailProps) => {
@@ -101,7 +98,7 @@ export const TaskNotificationEmail = ({
               marginBottom: "24px",
             }}
           >
-            <strong>{assigneeUsername}</strong> ha{" "}
+            <strong>{changerUsername} </strong>
             <strong>{statusLabel.toLowerCase()}</strong> la tarea:{" "}
             <strong>{taskName}</strong>
             {groupName && <span> en el grupo &quot;{groupName}&quot;</span>}
