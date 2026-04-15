@@ -4,7 +4,7 @@ import { TaskSchema } from "@/db/schemas/Task";
 import { GroupMemberSchema } from "@/db/schemas/Groups";
 import { Task } from "@/entities/Task";
 import { fail, ok, Result } from "@/shared/result";
-import { eq, inArray } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 
 export async function getGroupTasks(groupId: string): Promise<Result<Task[]>> {
   try {
@@ -22,7 +22,12 @@ export async function getGroupTasks(groupId: string): Promise<Result<Task[]>> {
     const tasks = await db
       .select()
       .from(TaskSchema)
-      .where(inArray(TaskSchema.userId, memberIds));
+      .where(
+        and(
+          inArray(TaskSchema.userId, memberIds),
+          eq(TaskSchema.groupId, groupId)
+        )
+      );
 
     console.log("TASKS getGroupTasks", tasks);
 
