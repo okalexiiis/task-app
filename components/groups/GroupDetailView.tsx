@@ -36,11 +36,10 @@ export default function GroupDetailView({
     message: "",
     onConfirm: () => {},
   });
-  const { group, members, userRole, removeMember, updateMemberRole, groupTasks } =
+  const { group, members, userRole, removeMember, updateMemberRole, groupTasks, toggleGroupTaskStatus } =
     useGroup(groupId);
   const { renameGroup, deleteGroup } = useGroups();
-
-  const { toggleTaskStatus, deleteTask } = useTasks();
+  const { deleteTask } = useTasks();
 
   const canToggleTask =
     userRole === "OWNER" || userRole === "ADMIN" || userRole === "MEMBER";
@@ -155,13 +154,7 @@ export default function GroupDetailView({
             finished={["DONE", "CANCELED"].includes(activeTab)}
             canDelete={canAddOrDeleteTask}
             onToggle={(id) => {
-              console.log(
-                "[GroupDetailView] Toggle called, canToggleTask:",
-                canToggleTask,
-                "id:",
-                id,
-              );
-              if (canToggleTask) toggleTaskStatus(id);
+              if (canToggleTask) toggleGroupTaskStatus(id);
             }}
             onDelete={canAddOrDeleteTask ? (id) => deleteTask(id) : () => {}}
           />

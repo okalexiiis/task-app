@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { Group, GroupMember, GroupRoleEnum } from "@/entities/Group";
-import { Task } from "@/entities/Task";
+import { Task, TaskStatusEnum } from "@/entities/Task";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export function useGroup(groupId: string | null) {
@@ -38,9 +38,7 @@ export function useGroup(groupId: string | null) {
         const currentMember = data.find(
           (m: GroupMember) => m.member_id === user.id,
         );
-        console.log("[useGroup] Members fetched, current user:", user.id, "member:", currentMember);
         setUserRole(currentMember?.role || null);
-        console.log("[useGroup] userRole set to:", currentMember?.role);
       }
     } catch (error) {
       console.error("Error fetching members:", error);
@@ -144,6 +142,44 @@ export function useGroup(groupId: string | null) {
     [user, groupId, fetchMembers],
   );
 
+  const toggleGroupTaskStatus = useCallback(
+    async (taskId: string) => {
+      if (!user) throw new Error("User not authenticated");
+      const task = groupTasks.find((t) => t.id === taskId);
+      if (!task) return;
+
+      const nextStatus: Record<TaskStatusEnum, TaskStatusEnum> = {
+        PENDING: "IN_PROGRESS",
+        IN_PROGRESS: "DONE",
+        DONE: "CANCELED",
+        CANCELED: "PENDING",
+      };
+      const newStatus = nextStatus[task.status];
+
+      const originalTasks = [...groupTasks];
+      setGroupTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
+      );
+
+      try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": user.id,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        if (!response.ok) {
+          setGroupTasks(originalTasks);
+        }
+      } catch {
+        setGroupTasks(originalTasks);
+      }
+    },
+    [user, groupTasks],
+  );
+
   useEffect(() => {
     fetchGroup();
     fetchMembers();
@@ -161,5 +197,6 @@ export function useGroup(groupId: string | null) {
     removeMember,
     updateMemberRole,
     addMember,
+    toggleGroupTaskStatus,
   };
 }

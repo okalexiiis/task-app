@@ -15,7 +15,7 @@ export async function PUT(
   const { id } = await params;
   try {
     const task = await getTaskById(id);
-    if (!task || task.userId !== userId) {
+    if (!task) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
