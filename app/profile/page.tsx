@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useMemo, useRef } from "react";
 import Image from "next/image";
 import Modal from "@/components/ui/Modal";
 
@@ -33,6 +33,7 @@ export default function ProfilePage() {
 
   const { user, logout, updateUser, deleteAccount } = useAuthStore();
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: ToastType;
@@ -205,6 +206,13 @@ export default function ProfilePage() {
           </button>
         </form>
 
+        <button
+          onClick={() => setPasswordModalOpen(true)}
+          className="mt-6 w-full p-2 bg-transparent border border-muted text-secondary rounded-full text-sm font-mono hover:bg-muted/10 transition-colors cursor-pointer"
+        >
+          Cambiar Contraseña
+        </button>
+
         <div className="mt-12 border-t border-muted/50 pt-6">
           <h3 className="text-center font-mono text-xs text-secondary uppercase tracking-widest">
             Zona de Peligro
@@ -232,6 +240,111 @@ export default function ProfilePage() {
           onClose={handleCloseToast}
         />
       )}
+      <Modal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setPasswordModalOpen(false)}
+        title="Cambiar Contraseña"
+      >
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.target as HTMLFormElement;
+            const currentPassword = (
+              form.elements.namedItem("currentPassword") as HTMLInputElement
+            ).value;
+            const newPassword = (
+              form.elements.namedItem("newPassword") as HTMLInputElement
+            ).value;
+            const confirmPassword = (
+              form.elements.namedItem("confirmPassword") as HTMLInputElement
+            ).value;
+
+            if (newPassword !== confirmPassword) {
+              showToast("Las contraseñas no coinciden", "error");
+              return;
+            }
+
+            if (newPassword.length < 8) {
+              showToast("La contraseña debe tener al menos 8 caracteres", "error");
+              return;
+            }
+
+            const res = await fetch("/api/auth/change-password", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId: user?.id,
+                currentPassword,
+                newPassword,
+              }),
+              credentials: "include",
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+              showToast("Contraseña actualizada", "success");
+              setPasswordModalOpen(false);
+            } else {
+              showToast(data.message, "error");
+            }
+          }}
+        >
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="font-mono text-[10px] uppercase tracking-widest text-secondary ml-1">
+                Contraseña actual
+              </label>
+              <input
+                name="currentPassword"
+                type="password"
+                required
+                className="bg-transparent border-b border-muted p-2 font-mono text-sm no-input-ring focus:border-accent transition-all"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="font-mono text-[10px] uppercase tracking-widest text-secondary ml-1">
+                Nueva contraseña
+              </label>
+              <input
+                name="newPassword"
+                type="password"
+                required
+                minLength={8}
+                className="bg-transparent border-b border-muted p-2 font-mono text-sm no-input-ring focus:border-accent transition-all"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="font-mono text-[10px] uppercase tracking-widest text-secondary ml-1">
+                Confirmar contraseña
+              </label>
+              <input
+                name="confirmPassword"
+                type="password"
+                required
+                minLength={8}
+                className="bg-transparent border-b border-muted p-2 font-mono text-sm no-input-ring focus:border-accent transition-all"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+              type="button"
+              onClick={() => setPasswordModalOpen(false)}
+              className="px-4 py-2 bg-transparent border border-secondary text-secondary rounded-full text-sm font-mono hover:bg-secondary/10 transition-colors cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-accent border border-accent text-white rounded-full text-sm font-mono hover:brightness-110 transition-all cursor-pointer"
+            >
+              Guardar
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}

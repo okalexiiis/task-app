@@ -43,7 +43,7 @@ export function LoginForm() {
 
   return (
     <form
-      className="flex flex-col gap-6 w-full group font-mono"
+      className="flex flex-col  w-full group font-mono"
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="flex flex-col gap-1">
@@ -98,7 +98,7 @@ export function LoginForm() {
         {loading ? "Entrando..." : "Entrar a mi espacio"}{" "}
       </button>
 
-      <footer className="text-center mt-2">
+      <div className="flex justify-between flex-col gap-2 items-center mt-2">
         <p className="font-mono text-xs text-secondary">
           ¿Eres nuevo aquí?{" "}
           <Link
@@ -108,7 +108,13 @@ export function LoginForm() {
             Crea una cuenta
           </Link>
         </p>
-      </footer>
+        <Link
+          href="/forgot-password"
+          className="font-mono text-xs text-secondary hover:text-accent transition-colors"
+        >
+          ¿Olvidaste tu contraseña?
+        </Link>
+      </div>
     </form>
   );
 }
