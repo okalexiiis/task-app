@@ -69,17 +69,6 @@ export default function GroupOptionsDropdown({
               </button>
             </li>
           )}
-          <li>
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                onLeave();
-              }}
-              className="w-full text-left p-2 text-sm hover:bg-muted/20 rounded cursor-pointer"
-            >
-              Salir
-            </button>
-          </li>
         </ul>
       )}
     </div>
