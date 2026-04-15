@@ -72,12 +72,14 @@ export async function sendPasswordResetEmail(
 
 export async function sendTaskNotification(
   recipientEmail: string,
-  changerUsername: string, // 👈 quien hizo el cambio
+  changerUsername: string,
   taskName: string,
   oldStatus: string,
   newStatus: string,
   groupName?: string,
 ) {
+  console.log("sendTaskNotification called:", { recipientEmail, changerUsername, taskName, oldStatus, newStatus, groupName, FROM_EMAIL });
+  
   const sanitizedEmail = sanitizeEmail(recipientEmail);
   const sanitizedTaskName = sanitizeTaskName(taskName);
   const sanitizedGroupName = groupName
@@ -85,6 +87,7 @@ export async function sendTaskNotification(
     : undefined;
 
   if (!sanitizedEmail || !sanitizedTaskName) {
+    console.log("Invalid email or taskName");
     return;
   }
 
@@ -99,14 +102,21 @@ export async function sendTaskNotification(
       oldStatus,
       newStatus,
       groupName: sanitizedGroupName,
-      changerUsername, // 👈 pasar al template
+      changerUsername,
     }),
   );
 
-  await resend.emails.send({
-    from: `Task <${FROM_EMAIL}>`,
-    to: sanitizedEmail,
-    subject: `Tarea "${sanitizedTaskName}" ${newStatus === "DONE" ? "completada" : "cancelada"}`,
-    html,
-  });
+  console.log("Sending email with Resend:", { from: FROM_EMAIL, to: sanitizedEmail });
+  
+  try {
+    const result = await resend.emails.send({
+      from: `Task <${FROM_EMAIL}>`,
+      to: sanitizedEmail,
+      subject: `Tarea "${sanitizedTaskName}" ${newStatus === "DONE" ? "completada" : "cancelada"}`,
+      html,
+    });
+    console.log("Resend result:", result);
+  } catch (error) {
+    console.error("Resend error:", error);
+  }
 }
