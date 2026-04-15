@@ -54,12 +54,11 @@ export async function notifyTaskStatusChange(
   const notifyPromises = membersToNotify.map((member) =>
     sendTaskNotification(
       member.email!,
-      member.username || "Usuario",
+      currentUsername, // 👈
       task.name,
       oldStatus,
       newStatus,
       group[0]?.groupName,
-      currentUsername, // 👈
     ),
   );
 

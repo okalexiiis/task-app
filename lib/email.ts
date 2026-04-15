@@ -72,15 +72,13 @@ export async function sendPasswordResetEmail(
 
 export async function sendTaskNotification(
   recipientEmail: string,
-  recipientUsername: string,
+  changerUsername: string, // 👈 quien hizo el cambio
   taskName: string,
   oldStatus: string,
   newStatus: string,
   groupName?: string,
-  changerUsername?: string, // 👈 quien hizo el cambio
 ) {
   const sanitizedEmail = sanitizeEmail(recipientEmail);
-  const sanitizedUsername = sanitizeUsername(recipientUsername);
   const sanitizedTaskName = sanitizeTaskName(taskName);
   const sanitizedGroupName = groupName
     ? sanitizeUsername(groupName)
@@ -97,7 +95,6 @@ export async function sendTaskNotification(
 
   const html = await render(
     TaskNotificationEmail({
-      assigneeUsername: sanitizedUsername,
       taskName: sanitizedTaskName,
       oldStatus,
       newStatus,
