@@ -4,10 +4,10 @@ import { GroupRole, GroupRoleEnum } from "@/entities/Group";
 import { GroupPermissions } from "@/shared/group-permissions";
 import { useGroup } from "@/hooks/useGroup";
 import { useGroups } from "@/hooks/useGroups";
-import { useTasks } from "@/hooks/useTasks";
 import GroupOptionsDropdown from "./GroupOptionsDropdown";
 import AddMemberModal from "./AddMemberModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import Toast from "@/components/Toast";
 import TaskTabs from "@/components/tasks/TaskTabs";
 import TaskList from "@/components/tasks/TaskList";
 import { TaskStatusEnum } from "@/entities/Task";
@@ -36,10 +36,21 @@ export default function GroupDetailView({
     message: "",
     onConfirm: () => {},
   });
-  const { group, members, userRole, removeMember, updateMemberRole, groupTasks, toggleGroupTaskStatus } =
-    useGroup(groupId);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+  const {
+    group,
+    members,
+    userRole,
+    removeMember,
+    updateMemberRole,
+    groupTasks,
+    toggleGroupTaskStatus,
+    deleteGroupTask,
+  } = useGroup(groupId);
   const { renameGroup, deleteGroup } = useGroups();
-  const { deleteTask } = useTasks();
 
   const canToggleTask =
     userRole === "OWNER" || userRole === "ADMIN" || userRole === "MEMBER";
@@ -93,6 +104,22 @@ export default function GroupDetailView({
       title: "Cambiar Rol",
       message: `¿Estás seguro de cambiar el rol a ${newRole}?`,
       onConfirm: () => updateMemberRole(memberId, newRole as GroupRoleEnum),
+    });
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Eliminar Tarea",
+      message: "¿Estás seguro de eliminar esta tarea?",
+      onConfirm: async () => {
+        try {
+          await deleteGroupTask(taskId);
+          setToast({ message: "¡Tarea eliminada!", type: "success" });
+        } catch {
+          setToast({ message: "Error al eliminar tarea", type: "error" });
+        }
+      },
     });
   };
 
@@ -156,7 +183,7 @@ export default function GroupDetailView({
             onToggle={(id) => {
               if (canToggleTask) toggleGroupTaskStatus(id);
             }}
-            onDelete={canAddOrDeleteTask ? (id) => deleteTask(id) : () => {}}
+            onDelete={canAddOrDeleteTask ? handleDeleteTask : undefined}
           />
           {filteredTasks.length > PAGE_SIZE && (
             <div className="flex justify-center gap-2 mt-4">
@@ -253,6 +280,13 @@ export default function GroupDetailView({
         title={confirmModal.title}
         message={confirmModal.message}
       />
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

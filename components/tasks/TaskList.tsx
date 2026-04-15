@@ -9,7 +9,7 @@ interface TaskListProps {
   finished?: boolean;
   canDelete?: boolean;
   onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function TaskList({

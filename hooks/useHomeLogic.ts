@@ -19,6 +19,7 @@ export function useHomeLogic() {
   } = useTasks();
   const { currentView, activeGroupId, setView, resetToHome } = useViewStore();
   const { groups, createGroup, renameGroup, deleteGroup } = useGroups();
+  const { triggerGroupTasksRefresh } = useViewStore();
   const { userRole: groupUserRole } = useGroup(activeGroupId);
   const [activeTab, setActiveTab] = useState<TaskStatusEnum>("PENDING");
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,6 +83,9 @@ export function useHomeLogic() {
     console.log("[useHomeLogic] handleCreateTask called with:", data);
     try {
       await createTask(data);
+      if (activeGroupId) {
+        triggerGroupTasksRefresh();
+      }
       setCreateModalOpen(false);
       setCurrentPage(1);
       showToast("¡Tarea creada!", "success");

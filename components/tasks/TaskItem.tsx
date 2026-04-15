@@ -18,7 +18,7 @@ interface TaskItemProps {
   finished?: boolean;
   canDelete?: boolean;
   onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function TaskItem({
@@ -33,8 +33,8 @@ export default function TaskItem({
   const isOverdue = task.dueDate && new Date(task.dueDate) < today;
 
   const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Evita que el evento de clic se propague al <li>
-    onDelete(task.id);
+    e.stopPropagation();
+    onDelete?.(task.id);
   };
 
   return (

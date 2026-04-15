@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Group, GroupMember, GroupRoleEnum } from "@/entities/Group";
 import { Task, TaskStatusEnum } from "@/entities/Task";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useViewStore } from "@/store/view.store";
 
 export function useGroup(groupId: string | null) {
   const { user, isAuthenticated } = useRequireAuth();
@@ -59,6 +60,14 @@ export function useGroup(groupId: string | null) {
       console.error("Error fetching group tasks:", error);
     }
   }, [groupId, user]);
+
+  const { refreshGroupTasksTrigger } = useViewStore();
+
+  useEffect(() => {
+    if (refreshGroupTasksTrigger > 0) {
+      fetchGroupTasks();
+    }
+  }, [refreshGroupTasksTrigger, fetchGroupTasks]);
 
   const removeMember = useCallback(
     async (memberId: string) => {
@@ -180,6 +189,29 @@ export function useGroup(groupId: string | null) {
     [user, groupTasks],
   );
 
+  const deleteGroupTask = useCallback(
+    async (taskId: string) => {
+      if (!user) throw new Error("User not authenticated");
+      const originalTasks = [...groupTasks];
+      setGroupTasks((prev) => prev.filter((t) => t.id !== taskId));
+      try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+          method: "DELETE",
+          headers: { "x-user-id": user.id },
+        });
+        if (!response.ok) {
+          setGroupTasks(originalTasks);
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Error deleting task");
+        }
+      } catch (error) {
+        setGroupTasks(originalTasks);
+        throw error;
+      }
+    },
+    [user, groupTasks],
+  );
+
   useEffect(() => {
     fetchGroup();
     fetchMembers();
@@ -198,5 +230,6 @@ export function useGroup(groupId: string | null) {
     updateMemberRole,
     addMember,
     toggleGroupTaskStatus,
+    deleteGroupTask,
   };
 }
