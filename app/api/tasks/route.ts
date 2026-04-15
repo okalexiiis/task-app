@@ -10,10 +10,13 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
+    console.log("[POST /api/tasks] body:", JSON.stringify(body));
 
     // Aseguramos que la tarea se asocie al usuario correcto
     const newTaskData = { ...body, userId };
 
+    console.log("[POST /api/tasks] newTaskData:", JSON.stringify(newTaskData));
+    
     const newTask = await createTask(newTaskData);
     return NextResponse.json(newTask, { status: 201 });
   } catch (error) {

@@ -1,145 +1,114 @@
 "use client";
-import { Task, TaskStatusEnum } from "@/entities/Task";
-import { useState, useMemo } from "react";
-import NavBar from "@/components/layout/Navbar";
-import TaskList from "@/components/tasks/TaskList";
-import ProgressBar from "@/components/ui/ProgressBar";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import PaginationControls from "@/components/layout/PaginationControls";
-import Toast from "@/components/Toast";
-import { useTasks } from "@/hooks/useTasks";
-import TaskTabs from "@/components/tasks/TaskTabs";
+import { useHomeLogic } from "@/hooks/useHomeLogic";
+import { statusTranslations } from "@/utils/translations";
+import ProgressBar from "@/components/ui/ProgressBar";
 import CreateTaskModal from "@/components/tasks/CreateTaskModal";
 import DeleteConfirmationModal from "@/components/tasks/DeleteConfirmationModal";
-import { statusTranslations } from "@/utils/translations";
-import { CreateTaskData } from "@/components/tasks/CreateTaskForm";
-
-type ToastType = "success" | "error" | "warning";
-
-const PAGE_SIZE = 5;
+import Toast from "@/components/Toast";
+import PaginationControls from "@/components/layout/PaginationControls";
+import TaskList from "@/components/tasks/TaskList";
+import TaskTabs from "@/components/tasks/TaskTabs";
+import NavBar from "@/components/layout/Navbar";
+import GroupDetailView from "@/components/groups/GroupDetailView";
+import GroupsList from "@/components/groups/GroupList";
+import CreateGroupModal from "@/components/groups/CreateGroupModal";
 
 export default function Home() {
-  const { user, initialized, isAuthenticated } = useRequireAuth();
-  const { tasks, createTask, deleteTask, toggleTaskStatus } = useTasks();
+  const { initialized, isAuthenticated, user } = useRequireAuth();
+  const { state, actions } = useHomeLogic();
 
-  const [activeTab, setActiveTab] = useState<TaskStatusEnum>("PENDING");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
-  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
-  const [toast, setToast] = useState<{
-    message: string;
-    type: ToastType;
-  } | null>(null);
-
-  const handleTabChange = (tab: TaskStatusEnum) => {
-    setActiveTab(tab);
-    setCurrentPage(1);
-  };
-
-  const showToast = (message: string, type: ToastType) => {
-    setToast(null);
-    setTimeout(() => setToast({ message, type }), 50);
-  };
-
-  const handleCreateTask = async (data: CreateTaskData) => {
-    try {
-      await createTask(data);
-      setCreateModalOpen(false);
-      showToast("¡Tarea creada con éxito!", "success");
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Error al crear la tarea";
-      showToast(message, "error");
-    }
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!taskToDelete) return;
-    try {
-      await deleteTask(taskToDelete.id);
-      setTaskToDelete(null);
-      showToast("¡Tarea eliminada!", "success");
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Error al eliminar la tarea";
-      showToast(message, "error");
-    }
-  };
-
-  const { paginatedTasks, totalPages, finishedPct } = useMemo(() => {
-    const filtered = tasks.filter((t) => t.status === activeTab);
-    const total = Math.ceil(filtered.length / PAGE_SIZE);
-    const paginated = filtered.slice(
-      (currentPage - 1) * PAGE_SIZE,
-      currentPage * PAGE_SIZE,
-    );
-    const finishedCount = tasks.filter(
-      (t) => t.status === "DONE" || t.status === "CANCELED",
-    ).length;
-    const pct = Math.round((finishedCount / Math.max(tasks.length, 1)) * 100);
-    return {
-      paginatedTasks: paginated,
-      totalPages: total,
-      finishedPct: pct,
-    };
-  }, [tasks, activeTab, currentPage]);
-
-  if (!initialized) {
-    return <div className="text-center p-10">Cargando...</div>;
-  }
+  if (!initialized) return <div className="text-center p-10">Cargando...</div>;
   if (!isAuthenticated) return null;
 
   return (
-    <>
-      <div className="bg-background min-h-screen text-primary font-dmono">
-        <div className="max-w-[760px] mx-auto px-4 md:px-9">
-          <NavBar user={user}>
-            <button
-              onClick={() => setCreateModalOpen(true)}
-              className="bg-accent text-white font-serif italic py-2 px-5 rounded-full text-sm hover:brightness-110 transition-all cursor-pointer"
-            >
-              + Nueva Tarea
-            </button>
-          </NavBar>
-          <TaskTabs activeTab={activeTab} onTabChange={handleTabChange} />
-          <TaskList
-            tasks={paginatedTasks}
-            label={`${statusTranslations[activeTab]} (${
-              paginatedTasks.length
-            })`}
-            finished={activeTab === "DONE" || activeTab === "CANCELED"}
-            onToggle={toggleTaskStatus}
-            onDelete={(id) =>
-              setTaskToDelete(tasks.find((t) => t.id === id) || null)
-            }
+    <div className="bg-background min-h-screen text-primary font-dmono">
+      <div className="max-w-[1200px] w-auto mx-auto px-4 md:px-9">
+        <NavBar user={user}>
+          <button
+            onClick={actions.primaryAction}
+            className="bg-accent px-4 py-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={state.currentView === "GROUP_DETAIL" && !state.canCreateGroupTask}
+          >
+            {state.currentView === "GROUPS_LIST"
+              ? "+ Nuevo Grupo"
+              : "+ Nueva Tarea"}
+          </button>
+
+          <button
+            onClick={actions.toggleView}
+            className="border border-accent px-4 py-2 rounded-full"
+          >
+            {state.isGroupsView ? "Ver mis Tareas" : "Ver Grupos"}
+          </button>
+        </NavBar>
+
+        {state.currentView === "PERSONAL_TASKS" && (
+          <>
+            <TaskTabs
+              activeTab={state.activeTab}
+              onTabChange={(tab) => {
+                actions.setActiveTab(tab);
+                actions.setCurrentPage(1);
+              }}
+            />
+
+            <TaskList
+              tasks={state.paginatedTasks}
+              label={`${statusTranslations[state.activeTab]} (${state.paginatedTasks.length})`}
+              finished={["DONE", "CANCELED"].includes(state.activeTab)}
+              canDelete={true}
+              onToggle={actions.toggleTaskStatus}
+              onDelete={(id) =>
+                actions.setTaskToDelete(
+                  state.paginatedTasks.find((t) => t.id === id) || null,
+                )
+              }
+            />
+          </>
+        )}
+
+        {state.currentView === "GROUPS_LIST" && (
+          <GroupsList
+            groups={state.groups}
+            onSelectGroup={(id) => actions.setView("GROUP_DETAIL", id)}
           />
-          <PaginationControls
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-          <ProgressBar pct={finishedPct} />
-        </div>
+        )}
+
+        {state.currentView === "GROUP_DETAIL" && (
+          <GroupDetailView groupId={state.activeGroupId} />
+        )}
+
+        <PaginationControls
+          currentPage={state.currentPage}
+          totalPages={state.totalPages}
+          onPageChange={actions.setCurrentPage}
+        />
+        <ProgressBar pct={state.finishedPct} />
       </div>
 
       <CreateTaskModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleCreateTask}
+        isOpen={state.isCreateModalOpen}
+        onClose={() => actions.setCreateModalOpen(false)}
+        onSubmit={actions.handleCreateTask}
+        groupId={state.currentView === "GROUP_DETAIL" ? state.activeGroupId : null}
       />
       <DeleteConfirmationModal
-        task={taskToDelete}
-        onClose={() => setTaskToDelete(null)}
-        onConfirm={handleConfirmDelete}
+        task={state.taskToDelete}
+        onClose={() => actions.setTaskToDelete(null)}
+        onConfirm={async () => {
+          await actions.deleteTask(state.taskToDelete!.id);
+          actions.setTaskToDelete(null);
+        }}
       />
-
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
+      {state.toast && (
+        <Toast {...state.toast} onClose={() => actions.setToast(null)} />
       )}
-    </>
+      <CreateGroupModal
+        isOpen={state.isCreateGroupModalOpen}
+        onClose={() => actions.setIsCreateGroupModalOpen(false)}
+        onSubmit={actions.handleCreateGroup}
+      />
+    </div>
   );
 }

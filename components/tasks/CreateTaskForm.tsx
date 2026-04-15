@@ -10,7 +10,8 @@ const createTaskSchema = z.object({
   description: z.string().optional(),
   priority: z.enum(Priority),
   status: z.enum(TaskStatus),
-  dueDate: z.string().optional().nullable(), // Acepta null
+  dueDate: z.string().optional().nullable(),
+  groupId: z.string().optional(),
 });
 
 export type CreateTaskData = z.infer<typeof createTaskSchema>;
@@ -18,11 +19,13 @@ export type CreateTaskData = z.infer<typeof createTaskSchema>;
 interface CreateTaskFormProps {
   onSubmit: (data: CreateTaskData) => void;
   onClose: () => void;
+  groupId?: string | null;
 }
 
 export default function CreateTaskForm({
   onSubmit,
   onClose,
+  groupId,
 }: CreateTaskFormProps) {
   const {
     register,
@@ -38,11 +41,11 @@ export default function CreateTaskForm({
 
   // Wrapper para transformar los datos antes de enviar
   const handleFormSubmit = (data: CreateTaskData) => {
-    // Si la fecha está vacía, conviértela a null
     if (data.dueDate === "") {
       data.dueDate = null;
     }
-    onSubmit(data);
+    const taskData = groupId ? { ...data, groupId } : data;
+    onSubmit(taskData);
   };
 
   return (

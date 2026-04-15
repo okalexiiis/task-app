@@ -15,16 +15,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const user = await getUserByUsername(username);
+  const result = await getUserByUsername(username);
 
-  if (!user) {
+  if (!result.success) {
     return NextResponse.json(
-      { message: "Credenciales inválidas" },
+      { message: "Usuario no existente" },
       { status: 401 },
     );
   }
 
-  const passwordMatch = await bcrypt.compare(password, user.password);
+  const { data } = result;
+
+  const passwordMatch = await bcrypt.compare(password, data.password);
 
   if (!passwordMatch) {
     return NextResponse.json(
@@ -33,9 +35,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const token = signToken({ userId: user.id, username: user.username });
+  const token = signToken({
+    userId: data.id,
+    username: data.username,
+  });
 
-  const { password: _, ...safeUser } = user;
+  const { password: _, ...safeUser } = data;
 
   const response = NextResponse.json({ user: safeUser });
 

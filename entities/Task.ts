@@ -14,6 +14,7 @@ export type TaskStatusEnum = (typeof TaskStatus)[number];
 export type Task = {
   id: string;
   userId: string;
+  groupId: string | null;
   name: string;
   priority: PriorityEnum;
   status: TaskStatusEnum;

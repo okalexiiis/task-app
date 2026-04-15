@@ -16,6 +16,7 @@ interface TaskItemProps {
   task: Task;
   index: number;
   finished?: boolean;
+  canDelete?: boolean;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -24,6 +25,7 @@ export default function TaskItem({
   task,
   index,
   finished = false,
+  canDelete = true,
   onToggle,
   onDelete,
 }: TaskItemProps) {
@@ -110,13 +112,15 @@ export default function TaskItem({
 
       {/* Botón de eliminar y número de índice */}
       <div className="flex items-center gap-2">
-        <button
-          onClick={handleDelete}
-          title="Eliminar tarea"
-          className="opacity-0 group-hover:opacity-100 text-primary hover:text-accent transition-all duration-200 p-1 cursor-pointer"
-        >
-          <Trash size={16} />
-        </button>
+        {canDelete && (
+          <button
+            onClick={handleDelete}
+            title="Eliminar tarea"
+            className="opacity-0 group-hover:opacity-100 text-primary hover:text-accent transition-all duration-200 p-1 cursor-pointer"
+          >
+            <Trash size={20} />
+          </button>
+        )}
 
         <span className="text-[10px] font-light text-muted tracking-[0.06em] shrink-0 w-6 text-right transition-colors duration-200 group-hover:text-secondary">
           {String(index + 1).padStart(2, "0")}

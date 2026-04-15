@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Task } from "@/entities/Task";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { cycleStatus } from "@/utils/cycleStatus";
@@ -94,8 +94,20 @@ export function useTasks() {
     [user, tasks],
   );
 
+  const personalTasks = useMemo(
+    () => tasks.filter((t) => !t.groupId),
+    [tasks]
+  );
+
+  const getGroupTasks = useCallback(
+    (groupId: string) => tasks.filter((t) => t.groupId === groupId),
+    [tasks]
+  );
+
   return {
     tasks,
+    personalTasks,
+    getGroupTasks,
     fetchTasks,
     createTask,
     deleteTask,

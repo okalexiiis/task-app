@@ -11,14 +11,15 @@ export async function GET(req: NextRequest) {
 
   try {
     const payload = verifyToken(token); // lanza si el token es inválido/expirado
-    const user = await getUserById(payload.userId);
+    const result = await getUserById(payload.userId);
 
-    if (!user) {
+    if (!result.success) {
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
 
+    const { data } = result;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...safeUser } = user;
+    const { password: _, ...safeUser } = data;
     return NextResponse.json({ user: safeUser });
   } catch (error) {
     console.error("Token verification failed:", error);

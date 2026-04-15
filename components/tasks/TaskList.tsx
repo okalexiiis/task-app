@@ -1,3 +1,4 @@
+"use client";
 import { Task } from "@/entities/Task";
 import TaskItem from "./TaskItem";
 import TaskSectionHeader from "./TaskSectionHeader";
@@ -6,6 +7,7 @@ interface TaskListProps {
   tasks: Task[];
   label: string;
   finished?: boolean;
+  canDelete?: boolean;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -14,10 +16,17 @@ export default function TaskList({
   tasks,
   label,
   finished = false,
+  canDelete = true,
   onToggle,
   onDelete,
 }: TaskListProps) {
-  if (tasks.length === 0) return null;
+  if (tasks.length === 0) {
+    return (
+      <div className="p-4 text-center text-muted">
+        No hay tareas
+      </div>
+    );
+  }
 
   return (
     <div className="relative before:content-[''] before:absolute before:-left-9 before:top-0 before:bottom-0 before:w-px before:opacity-35">
@@ -38,6 +47,7 @@ export default function TaskList({
             task={task}
             index={i}
             finished={finished}
+            canDelete={canDelete}
             onToggle={onToggle}
             onDelete={onDelete}
           />

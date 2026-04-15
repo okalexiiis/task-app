@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   const existingUser = await getUserByUsername(username);
-  if (existingUser) {
+  if (existingUser.success) {
     return NextResponse.json(
       { message: "El nombre de usuario ya existe" },
       { status: 409 },
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   }
 
   const existingEmail = await getUserByEmail(email);
-  if (existingEmail) {
+  if (existingEmail.success) {
     return NextResponse.json(
       { message: "El correo electrónico ya está en uso" },
       { status: 409 },

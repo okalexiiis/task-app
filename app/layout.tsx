@@ -1,7 +1,7 @@
 import Header from "@/components/layout/Header";
 import type { Metadata } from "next";
-import "./globals.css";
 import { AuthProvider } from "@/components/layout/AuthProvider";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "nidito",
